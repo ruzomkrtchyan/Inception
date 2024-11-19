@@ -1,3 +1,10 @@
-version: '' # Define the version of Docker Compose to use
+version: '3.4' # Define the version of Docker Compose to use
 
-services:
+services: #defines services that will be run by Docker compose
+  nginx: 
+   build: #tells Docker Compose to build the Docker image for the nginx service from a Dockerfile
+    context: . #sets the build context to the current directory
+    dockerfile: requirments/nginx/Dockerfile #specifies the location of the Dockerfile relative to the context
+  container_name: nginx
+  depends on: -wordpress #specifies that the nginx container should wait for the wordpress container to be ready before starting
+

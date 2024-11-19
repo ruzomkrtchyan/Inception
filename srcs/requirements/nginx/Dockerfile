@@ -1,5 +1,5 @@
 #the base image for the Docker container will be alpine
-FROM alpine:3.16
+FROM alpine:3.20
 
 #will run following commands and instal the nginx
 RUN apk update && apk upgrade && apk add --no-cache nginx
