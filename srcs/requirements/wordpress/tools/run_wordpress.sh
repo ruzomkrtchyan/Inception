@@ -23,14 +23,6 @@ if [ ! -e ./wp-config.php ]; then
     chmod -R a+w wp-config.php wp-content wp-content/plugins wp-content/themes wp-content/uploads
 	chown -R www-data:www-data wp-config.php wp-content wp-content/plugins wp-content/themes wp-content/uploads
 
-    wp plugin install redis-cache --activate --allow-root
-
-    wp config set WP_REDIS_HOST $REDIS_HOSTNAME --allow-root
-    wp config set WP_REDIS_PORT $REDIS_PORT --raw --allow-root
-    wp config set WP_CACHE_KEY_SALT $DOMAIN_NAME --allow-root
-    wp config set WP_REDIS_PASSWORD $REDIS_PASSWORD --allow-root
-    wp config set WP_REDIS_CLIENT phpredis --allow-root
-
 	rm -rf ./wp-config-sample.php
 
 fi
