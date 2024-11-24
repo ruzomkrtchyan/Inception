@@ -6,7 +6,7 @@ ENV PHP_VERSION 8.2
 # Create the required PHP run directory
 RUN mkdir -p /run/php
 
-# Install dependencies and PHP packages, then clean up APT cache
+# Install dependencies, including curl, wget, PHP packages, and ca-certificates
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -19,8 +19,12 @@ RUN apt-get update -y && \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-mbstring \
-    php${PHP_VERSION}-redis && \
+    php${PHP_VERSION}-redis \
+    ca-certificates && \
     rm -rf /var/lib/apt/lists/*
+
+# Update CA certificates
+RUN update-ca-certificates
 
 # Download and install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
