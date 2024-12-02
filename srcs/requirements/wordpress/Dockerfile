@@ -1,7 +1,7 @@
-FROM debian:bookworm-slim
+FROM debian:bullseye
 
 # Define PHP version as an environment variable
-ENV PHP_VERSION 8.2
+ENV PHP_VERSION 7.4
 
 # Create the required PHP run directory
 RUN mkdir -p /run/php

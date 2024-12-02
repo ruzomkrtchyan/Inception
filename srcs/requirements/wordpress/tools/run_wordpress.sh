@@ -37,4 +37,4 @@ sleep 10
 
 # wp redis enable --allow-root
 
-/usr/sbin/php-fpm8.2 -F
+/usr/sbin/php-fpm7.4 -F
