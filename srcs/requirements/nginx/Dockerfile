@@ -11,8 +11,8 @@ RUN         mkdir -p /etc/nginx/ssl
 
 RUN         openssl req -newkey rsa:4096 -x509 -sha256 \
             -days 365 -nodes \
-            -out /etc/nginx/ssl/arbaboom.pem \
-            -keyout /etc/nginx/ssl/arbaboom.key \
+            -out /etc/nginx/ssl/rmkrtchy.pem \
+            -keyout /etc/nginx/ssl/rmkrtchy.key \
             -subj "/C=AM/ST=Yerevan/L=Yerevan/O=42Yerevan/OU=IT/CN=localhost"
 
 RUN         mkdir -p /run/nginx
