@@ -1,29 +1,29 @@
-# #the base image for the Docker container will be alpine
-# FROM alpine:3.20
 
-# #will run following commands and instal the nginx
-# RUN apk update && apk upgrade && apk add --no-cache nginx
+FROM        debian:buster
 
-# #the container will be listening on port 443, the port the application will use for networking
-# EXPOSE 443
+RUN         apt update &&\
+            apt upgrade -y &&\
+            apt install -y nginx openssl
 
-# # runs "executable", "-g daemon off;" This option tells NGINX to run in the foreground
-# CMD [ "nginx", "-g", "daemon off;"]
+WORKDIR	    /etc/nginx
 
-FROM debian:buster
+RUN         mkdir -p /etc/nginx/ssl
 
-RUN apt-get update -y && apt-get upgrade -y
+RUN         openssl req -newkey rsa:4096 -x509 -sha256 \
+            -days 365 -nodes \
+            -out /etc/nginx/ssl/arbaboom.pem \
+            -keyout /etc/nginx/ssl/arbaboom.key \
+            -subj "/C=AM/ST=Yerevan/L=Yerevan/O=42Yerevan/OU=IT/CN=localhost"
 
-RUN apt-get install -y nginx openssl && rm -rf /var/lib/apt/lists/*
+RUN         mkdir -p /run/nginx
 
-COPY ./conf/default.conf /etc/nginx/sites-available/
+COPY        ./conf/nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY ./tools/run_nginx.sh /
+COPY	    ./tools/configure.sh ./
 
-WORKDIR /
 
-EXPOSE 443
+RUN	    chmod 766 ./configure.sh
 
-RUN chmod +x run_nginx.sh
+ENTRYPOINT  ["/etc/nginx/configure.sh"]
 
-CMD ["/run_nginx.sh"]
+CMD         ["nginx", "-g", "daemon off;"]

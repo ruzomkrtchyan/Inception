@@ -1,17 +1,18 @@
-FROM debian:buster
+FROM        debian:buster
 
-RUN apt-get update -y && apt-get upgrade -y
+RUN         apt update && \
+	    apt upgrade -y && \
+	    apt install -y mariadb-server mariadb-client
 
-RUN apt install -y mariadb-server mariadb-client && rm -rf /var/lib/apt/lists/*
+COPY        ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/
 
-COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/
+COPY        ./tools/configure.sh /tmp/
 
-COPY ./tools/run-mariadb.sh /
+RUN         chmod 766 /tmp/configure.sh; \
+            chmod 644 /etc/mysql/mariadb.conf.d/50-server.cnf
 
-WORKDIR /
+EXPOSE      3306
 
-RUN chmod +x /run-mariadb.sh
+ENTRYPOINT  ["/tmp/configure.sh"]
 
-EXPOSE 3306
-
-CMD ["/run-mariadb.sh"]
+CMD         ["mysqld"]

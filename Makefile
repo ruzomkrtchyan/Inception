@@ -1,34 +1,35 @@
-all: up configure_volumes
+FILE		= -f ./srcs/docker-compose.yml
+MOUNT_DIR	= $(HOME)/data
 
-up: configure_volumes
-	@echo "Lifting containers..."
-	@docker-compose -f ./srcs/docker-compose.yml up -d --build
-	@echo "!DONE!"
+all:		build up
+
+build:
+			docker-compose $(FILE) build
+
+up:
+			mkdir -p $(MOUNT_DIR)/mariadb
+			mkdir -p $(MOUNT_DIR)/wordpress
+			docker-compose $(FILE) up -d
 
 down:
-	@echo "Dropping containers..."
-	@docker-compose -f ./srcs/docker-compose.yml down
-	@echo "!DONE!"
-
-hard_down:
-	@echo "Dropping containers and removing volumes..."
-	@docker-compose -f ./srcs/docker-compose.yml down -v
-	@echo "!DONE!"
+			docker-compose $(FILE) down
 
 start:
-	@echo "Starting containers..."
-	@docker-compose -f ./srcs/docker-compose.yml start
-	@echo "!DONE!"
+			docker-compose $(FILE) start
 
 stop:
-	@echo "Stopping containers..."
-	docker-compose -f ./srcs/docker-compose.yml stop
-	@echo "!DONE!"
+			docker-compose $(FILE) stop
 
-configure_volumes:
-	@mkdir -p /home/rmkrtchy/data/mariadb
-	@mkdir -p /home/rmkrtchy/data/wordpress
+clean:		down
+			docker image prune
+			docker rmi mariadb wordpress nginx
+			docker volume rm srcs_mariadb_data srcs_wordpress_data
+			sudo rm -rf $(MOUNT_DIR)/mariadb
+			sudo rm -rf $(MOUNT_DIR)/wordpress
 
-remove_volumes:
-	@rm -rf home/rmkrtchy/data/mariadb
-	@rm -rf /home/rmkrtchy/data/wordpress
+ls:
+			docker ps
+
+re:			clean all
+
+.PHONY:		all clean fclean re build up down start stop ls

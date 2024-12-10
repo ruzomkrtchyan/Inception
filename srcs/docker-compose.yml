@@ -1,85 +1,59 @@
-# version: '3.4' # Define the version of Docker Compose to use
-
-# services: #defines services that will be run by Docker compose
-#   nginx: 
-#    build: #tells Docker Compose to build the Docker image for the nginx service
-#     context: . #specifies the directory that Docker will use to build the image.
-#     dockerfile: requirments/nginx/Dockerfile #specifies the path to the Dockerfile that will be used to build the image
-#   container_name: nginx
-#   depends on:
-#    -wordpress #specifies that the nginx container should wait for the wordpress container to be ready before starting
-#   ports: 
-#    -"443:443" #the host machine's port 443 will be mapped to the container's port 443
-#   networks:
-#    -inception #nginx container will be connected to a network named inception
-#   volumes: #allow you to persist data or share data between the host and containers, allows you to pass configuration files into the container.
-#    -./requirments/nginx/conf/:/etc/nginx/http.d/
-#    -./requirments/nginx/tools:/etc/nginx/ssl/
-#    - wp-volume:/var/www/
-#   env_file: #a file containing environment variables that will be loaded into the container
-#    -.env
-#   restart: always #always restarts the container if it stops or crashes
-
 version: "3"
 
 services:
-  nginx:
-    container_name: nginx
-    depends_on:
-      - wordpress
-    build: ./requirements/nginx/
-    volumes:
-      - wp_volume:/var/www/html/
-    restart: always
-    networks:
-      - bridge-network
-    env_file:
-      - .env
-    ports:
-      - "443:443"
-
- mariadb:
-    container_name: mariadb
-    build: ./requirements/mariadb/
-    volumes:
-      - db_volume:/var/lib/mysql/
-    networks:
-      - bridge-network
-    env_file:
-      - .env
-    restart: always
-
-  wordpress:
-    container_name: wordpress
-    depends_on:
-      - mariadb
-    build: ./requirements/wordpress/
-    volumes:
-      - wp_volume:/var/www/html/
-    restart: always
-    networks:
-      - bridge-network
-    env_file:
-      - .env
-
-volumes:
-  wp_volume:
-    driver: local
-    driver_opts:
-      device: /home/rmkrtchy/data/wordpress
-      o: bind
-      type: none
-  db_volume:
-    driver: local
-    driver_opts:
-      device: /home/rmkrtchy/data/mariadb
-      o: bind
-      type: none
+    mariadb:
+        build: ./requirements/mariadb/
+        image: mariadb
+        container_name: ruzo_mariadb
+        env_file:
+            - .env
+        networks:
+            - inception
+        volumes:
+            - mariadb_data:/var/lib/mysql/
+        restart: on-failure
+    wordpress:
+        build:
+            context: ./requirements/wordpress/
+        image: wordpress
+        container_name: ruzo_wordpress
+        env_file:
+            - .env
+        networks:
+            - inception
+        volumes:
+            - wordpress_data:/var/www/wordpress/
+        restart: on-failure
+        depends_on:
+            - mariadb
+    nginx:
+        build:
+            context: ./requirements/nginx/
+        image: nginx
+        container_name: ruzo_nginx
+        env_file:
+            - .env
+        networks:
+            - inception
+        volumes:
+            - wordpress_data:/var/www/wordpress/
+        restart: on-failure
+        ports:
+            - "443:443"
+        depends_on:
+            - wordpress
 
 networks:
-  bridge-network:
-    driver: bridge
+    inception:
 
-
-
-
+volumes:
+    wordpress_data:
+        driver_opts:
+            device: $HOME/data/wordpress
+            o: bind
+            type: none
+    mariadb_data:
+        driver_opts:
+            device: $HOME/data/mariadb
+            o: bind
+            type: none
